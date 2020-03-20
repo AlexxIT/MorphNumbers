@@ -60,3 +60,13 @@ morph_numbers:
 
 {{ 123|numword }}
 ```
+
+```yaml
+script:
+  morph_numbers_test:
+    sequence:
+    - service: system_log.write
+      data_template:
+        message: Старт занял {{ states('sensor.start_time')|round|numword('секунду') }}
+        level: warning
+```

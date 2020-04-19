@@ -16,10 +16,10 @@ MORPH = MorphAnalyzer()
 
 def number_to_words(number: int, text: str = None):
     if number < 0:
-        return "минус " + number_to_words(-number, text)
+        return ['минус'] + number_to_words(-number, text)
 
     if number == 0:
-        return 'ноль'
+        return ['ноль']
 
     # граммемы последней цифры
     if text:
@@ -80,6 +80,7 @@ def number_to_words(number: int, text: str = None):
 
 
 def words_with_number(number: int, text: str):
+    number = abs(number)
     words = []
     for word in text.split(' '):
         w: Parse = MORPH.parse(word)[0]

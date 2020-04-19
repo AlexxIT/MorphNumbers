@@ -59,6 +59,9 @@ morph_numbers:
 {{ 5|numword('просроченная задача', false) }}
 
 {{ 123|numword }}
+
+{{ 0|numword('градус') }}
+{{ -2|numword('градус') }}
 ```
 
 ```yaml

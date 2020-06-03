@@ -2,35 +2,11 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
-Компонент **Home Assistant**, добавляющий **Jinja2** фильтр для работы с числительными.
+Компонент **Home Assistant**, добавляющий **Jinja2** фильтр для работы с числительными. Хорошо подходит в дополнение к моему второму компоненту [YandexStation](https://github.com/AlexxIT/YandexStation).
 
-**Внимание:** API в стадии beta и в обновлениях могут быть изменены!
+**Внимание:** Если вы пользовались компонентом ранее - название функции изменилось!
 
 ![template](template.png)
-
-### Согласование слов с числительными
-
-Полезно при отправке в Телеграм
-
-```jinja2
-{{ 24|numword('градус', false) }} => 24 градуса
-```
-
-### Преобразование чисел в текст
-
-Полезно для TTS. Яндекс и Google допускают ошибки при произнесении числительных.
-
-**Внимание:** [Яндекс Станция](https://github.com/AlexxIT/YandexStation) в режиме обычного TTS неправильно произносит числительные даже текстом (*например, "две просроченные задачи"*). Необходимо использовать режим [Продвинутого TTS](https://github.com/AlexxIT/YandexStation#%D0%BF%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%BD%D1%83%D1%82%D1%8B%D0%B9-tts).
-
-```jinja2
-{{ 2|numword('просроченная задача') }} => две просроченные задачи
-```
-
-### Прочее
-
-```jinja2
-{{ 2000435|numword }} => два миллиона четыреста тридцать пять
-```
 
 ## Установка и настройка
 
@@ -44,32 +20,55 @@ morph_numbers:
 
 Используется как дополнительный фильтр в шаблонах.
 
-## Пример
+## Примеры
+
+### Согласование слов с числительными
+
+Полезно при отправке в Телеграм
+
+```jinja2
+{{ 24|format(morph='градус', as_text=false) }} => 24 градуса
+```
+
+### Преобразование чисел в текст
+
+Полезно для TTS. Яндекс и Google допускают ошибки при произнесении числительных.
+
+```jinja2
+{{ 2|format(morph='просроченная задача') }} => две просроченные задачи
+```
+
+### Прочее
+
+```jinja2
+{{ 2000435|format(morph='') }} => два миллиона четыреста тридцать пять
+```
+
+### Шаблон из скриншота
 
 ```yaml
-Старт занял {{ states('sensor.start_time')|round|numword('секунду') }}
+Старт занял {{ states('sensor.start_time')|round|format(morph='секунду') }}
 
-{{ 1|numword('градус') }}
-{{ 1|numword('задача') }}
-{{ 1|numword('дерево') }}
+{{ 1|format(morph='градус') }}
+{{ 1|format(morph='задача') }}
+{{ 1|format(morph='дерево') }}
 
-{{ 2000435|numword('синее облако') }}
+{{ 2000435|format(morph='синее облако') }}
 
-{{ 2|numword('запланированная задача', false) }}
-{{ 5|numword('просроченная задача', false) }}
+{{ 2|format(morph='запланированная задача', as_text=false) }}
+{{ 5|format(morph='просроченная задача', as_text=false) }}
 
-{{ 123|numword }}
+{{ 123|format(morph='') }}
 
-{{ 0|numword('градус') }}
-{{ -2|numword('градус') }}
+{{ 0|format(morph='градус') }}
+{{ -2|format(morph='градус') }}
 ```
 
 ```yaml
 script:
   morph_numbers_test:
     sequence:
-    - service: system_log.write
+    - service: persistent_notification.create
       data_template:
-        message: Старт занял {{ states('sensor.start_time')|round|numword('секунду') }}
-        level: warning
+        message: Старт занял {{ states('sensor.start_time')|round|format(morph='секунду') }}
 ```

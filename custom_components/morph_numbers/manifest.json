@@ -2,6 +2,7 @@
   "domain": "morph_numbers",
   "name": "Morph Numbers",
   "documentation": "https://github.com/AlexxIT/MorphNumbers",
+  "version": "0.0.2",
   "dependencies": [],
   "codeowners": [
     "@AlexxIT"

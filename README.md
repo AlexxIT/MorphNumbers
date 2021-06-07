@@ -1,26 +1,36 @@
-# Morph Numbers
+# Morph Numbers для Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
-Компонент **Home Assistant**, добавляющий **Jinja2** фильтр для работы с числительными. Хорошо подходит в дополнение к моему второму компоненту [YandexStation](https://github.com/AlexxIT/YandexStation).
-
-**Внимание:** Если вы пользовались компонентом ранее - название функции изменилось!
+Компонент [Home Assistant](https://www.home-assistant.io/), добавляющий **Jinja2** фильтр для работы с числительными. Хорошо подходит в дополнение к моему второму компоненту [YandexStation](https://github.com/AlexxIT/YandexStation).
 
 ![template](template.png)
 
-## Установка и настройка
+## Установка
 
-Устанавливается через HACS.
+**Способ 1.** [HACS](https://hacs.xyz/)
 
-Настраивается в `configuration.yaml`:
+> HACS > Интеграции > 3 точки (правый верхний угол) > Пользовательские репозитории > URL: `AlexxIT/MorphNumbers`, Категория: Интеграция > Добавить > подождать > MorphNumbers > Установить
+
+**Способ 2.** Вручную скопируйте папку `morph_numbers` из [latest release](https://github.com/AlexxIT/MorphNumbers/releases/latest) в директорию `/config/custom_components`.
+
+## Настройка
+
+**Способ 1.** GUI
+
+> Настройки > Интеграции > Добавить интеграцию > **MorphNumbers**
+
+Если интеграции нет в списке - очистите кэш браузера.
+
+**Способ 2.** YAML
 
 ```yaml
 morph_numbers:
-````
+```
+
+## Использование
 
 Используется как дополнительный фильтр в шаблонах.
-
-## Примеры
 
 ### Согласование слов с числительными
 

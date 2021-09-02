@@ -9,7 +9,7 @@ DOMAIN = 'morph_numbers'
 
 # noinspection PyUnusedLocal
 async def async_setup(hass, hass_config):
-    if DOMAIN in hass_config:
+    if DOMAIN in hass_config and not hass.config_entries.async_entries(DOMAIN):
         hass.async_create_task(hass.config_entries.flow.async_init(
             DOMAIN, context={"source": SOURCE_IMPORT}
         ))

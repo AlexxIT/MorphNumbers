@@ -2,9 +2,11 @@ from homeassistant.config_entries import SOURCE_IMPORT
 from homeassistant.helpers.template import _ENVIRONMENT, TemplateEnvironment
 from jinja2.filters import do_format
 
-from . import utils
+from .utils import MorphNumber
 
 DOMAIN = 'morph_numbers'
+
+MORPH = MorphNumber()
 
 
 # noinspection PyUnusedLocal
@@ -33,7 +35,15 @@ async def async_unload_entry(hass, entry):
 
 def morph_format(value, *args, **kwargs):
     if 'morph' in kwargs:
+        if kwargs.get('as_ordinal'):
+            return MORPH.ordinal_number(value, kwargs['morph'])
+
         as_text = kwargs.get('as_text', True)
-        return utils.numword(value, kwargs['morph'], as_text)
+
+        if isinstance(kwargs['morph'], list):
+            return MORPH.custom_numword(value, kwargs['morph'], as_text)
+
+        return MORPH.numword(value, kwargs['morph'], as_text)
+
     else:
         return do_format(value, *args, **kwargs)

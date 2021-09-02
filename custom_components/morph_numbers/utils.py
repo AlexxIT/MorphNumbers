@@ -1,105 +1,196 @@
 from pymorphy2 import MorphAnalyzer
 from pymorphy2.analyzer import Parse
 
-ONES = (None, 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь',
-        'восемь', 'девять', 'десять', 'одиннадцать', 'двенадцать',
-        'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать',
-        'семнадцать', 'восемнадцать', 'девятнадцать')
-TWENTIES = (None, None, 'двадцать', 'тридцать', 'сорок', 'пятьдесят',
-            'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто')
-HUNDREDS = (None, 'сто', 'двести', 'триста', 'четыреста', 'пятьсот',
-            'шестьсот', 'семьсот', 'восемьсот', 'девятьсот')
-THOUSANDS = (None, 'тысяча', 'миллион', 'миллиард', 'триллион')
+NUMBERS = """0,ноль,нулевой
+1,один,первый
+2,два,второй
+3,три,третий
+4,четыре,четвертый
+5,пять,пятый
+6,шесть,шестой
+7,семь,седьмой
+8,восемь,восьмой
+9,девять,девятый
+10,десять,десятый
+11,одинадцать,одинадцатый
+12,двенадцать,двенадцатый
+13,тринадцать,тринадцатый
+14,четырнадцать,четырнадцатый
+15,пятнадцать,пятнадцатый
+16,шестнадцать,шестнадцатый
+17,семнадцать,семнадцатый
+18,восемнадцать,восемнадцатый
+19,девятнадцать,девятнадцатый
+20,двадцать,двадцатый
+30,тридцать,тридцатый
+40,сорок,сороковой
+50,пятьдесят,пятидесятый
+60,шестьдесят,шестидесятый
+70,семьдесят,семидесятый
+80,восемьдесят,восьмидесятый
+90,девяносто,девяностый
+100,сто,сотый
+200,двести,двухсотый
+300,триста,трехсотый
+400,четыреста,четырехсотый
+500,пятьсот,пятисотый
+600,шестьсот,шестисотый
+700,семьсот,семисотый
+800,восемьсот,восьмисотый
+900,девятьсот,девятисотый
+1000,тысяча,тысячный
+1000000,миллион,миллионный"""
 
-MORPH = MorphAnalyzer()
 
+class MorphNumber:
+    def __init__(self):
+        morph = MorphAnalyzer()
+        self.parse = lambda word: morph.parse(word)[0]
 
-def number_to_words(number: int, text: str = None):
-    if number < 0:
-        return ['минус'] + number_to_words(-number, text)
+        # создаём словарь из чисел и порядковых числительных
+        self.dict = {}
+        for i in NUMBERS.split('\n'):
+            x, card, ord_ = i.split(',')
+            self.dict[int(x)] = card
+            self.dict[card] = ord_
 
-    if number == 0:
-        return ['ноль']
+    def number_to_words(self, number: int, text: str = None) -> list:
+        """Конвертирует число в текст, опционально согласуя его с текстом после
+        числа. Поддерживает только целые числа
+        """
+        if number < 0:
+            return ['минус'] + self.number_to_words(-number, text)
 
-    # граммемы последней цифры
-    if text:
-        word = text.rsplit(' ', 1)[-1]
-        w: Parse = MORPH.parse(word)[0]
-        tag = w.tag
-    else:
-        tag = None
+        if number == 0:
+            return [self.dict[number]]
 
-    d3 = 0
-    d2 = 0
-    words = []
-
-    k = len(str(number)) - 1
-    for d in str(number):
-        d = int(d)
-
-        if k % 3 == 2:
-            if d:
-                words.append(HUNDREDS[d])
-            d3 = d
-
-        elif k % 3 == 1:
-            if d > 1:
-                words.append(TWENTIES[d])
-            d2 = d
-
+        # граммемы последней цифры
+        if text:
+            word = text.rsplit(' ', 1)[-1]
+            tag = self.parse(word).tag
         else:
-            # десять, одинадцать, двенадцать...
-            if d2 == 1:
-                d += 10
+            tag = None
 
-            if d:
-                # тысячи женского рода (только для 1 и 2)
-                if k == 3 and d <= 2:
-                    w: Parse = MORPH.parse(ONES[d])[0]
-                    w: Parse = w.inflect({'femn'})
-                    words.append(w.word)
-
-                # граммемы последней цифры (только для 1 и 2)
-                elif k == 0 and d <= 2 and tag:
-                    w: Parse = MORPH.parse(ONES[d])[0]
-                    w: Parse = w.inflect({tag.gender, tag.case})
-                    words.append(w.word)
-
-                else:
-                    words.append(ONES[d])
-
-            # тысяч, миллион, миллиард...
-            if k > 2 and (d3 or d2 or d):
-                w2: Parse = MORPH.parse(THOUSANDS[int(k / 3)])[0]
-                w2: Parse = w2.make_agree_with_number(d)
-                words.append(w2.word)
-
-        k -= 1
-
-    return words
-
-
-def words_with_number(number: int, text: str):
-    number = abs(number)
-    words = []
-    for word in text.split(' '):
-        w: Parse = MORPH.parse(word)[0]
-        w: Parse = w.make_agree_with_number(number)
-        words.append(w.word)
-    return words
-
-
-def numword(number, text: str = None, as_text: bool = True):
-    number = int(float(number))
-
-    if as_text is True:
-        words = number_to_words(number, text)
-    elif as_text is False:
-        words = [str(number)]
-    else:
+        hundred = 0
+        ten = 0
         words = []
 
-    if text:
-        words += words_with_number(number, text)
+        # номер цифры в числе
+        k = len(str(number)) - 1
+        for digit in str(number):
+            digit = int(digit)
 
-    return ' '.join(words)
+            # сотни
+            if k % 3 == 2:
+                if digit > 0:
+                    words.append(self.dict[digit * 100])
+                hundred = digit
+
+            # десятки
+            elif k % 3 == 1:
+                if digit > 1:
+                    words.append(self.dict[digit * 10])
+                ten = digit
+
+            # тысячи и единицы
+            else:
+                # десять, одинадцать, двенадцать...
+                if ten == 1:
+                    digit += 10
+
+                if digit > 0:
+                    # тысячи женского рода (только для 1 и 2)
+                    # например: одна тысяча, две тысячи
+                    if k == 3 and digit <= 2:
+                        w: Parse = self.parse(self.dict[digit])
+                        w: Parse = w.inflect({'femn'})
+                        words.append(w.word)
+
+                    # граммемы последней цифры (только для 1 и 2)
+                    # например: один градус, одна задача, одно дерево
+                    elif k == 0 and digit <= 2 and tag:
+                        w: Parse = self.parse(self.dict[digit])
+                        w: Parse = w.inflect({tag.gender, tag.case})
+                        words.append(w.word)
+
+                    else:
+                        words.append(self.dict[digit])
+
+                # например: сто тысяч, десять миллионов, один миллиард
+                if k > 2 and (hundred or ten or digit):
+                    w2: Parse = self.parse(self.dict[10 ** k])
+                    w2: Parse = w2.make_agree_with_number(digit)
+                    words.append(w2.word)
+
+            k -= 1
+
+        return words
+
+    def ordinal_number(self, number: int, first_word: str):
+        if number >= 1000:
+            return str(number)
+
+        words = self.number_to_words(number)
+        last_word = words.pop()
+
+        ordinal = self.dict[last_word]
+        w: Parse = self.parse(ordinal)
+
+        tag = self.parse(first_word).tag
+        w: Parse = w.inflect({tag.gender, tag.case})
+
+        return ' '.join(words + [w.word])
+
+    def words_with_number(self, number: int, text: str):
+        number = abs(number)
+        words = []
+        for word in text.split(' '):
+            w: Parse = self.parse(word)
+            w: Parse = w.make_agree_with_number(number)
+            # 5|format(morph='май') => None
+            if w:
+                words.append(w.word)
+        return words
+
+    def numword(self, number, text: str = None, as_text: bool = True):
+        # число всегда конвертируется в целое
+        number = int(float(number))
+
+        # as_text=True выведет число в виде строки
+        if as_text is True:
+            words = self.number_to_words(number, text)
+        # as_text=True выведет число в виде числа
+        elif as_text is False:
+            words = [str(number)]
+        # as_text=None не выведет число вообще
+        else:
+            words = []
+
+        if text:
+            words += self.words_with_number(number, text)
+
+        return ' '.join(words)
+
+    def custom_numword(self, number, text:list, as_text: bool = True):
+        # число всегда конвертируется в целое
+        number = int(float(number))
+
+        if (number % 10 == 1) and (number % 100 != 11):
+            text = text[0]
+        elif (number % 10 >= 2) and (number % 10 <= 4) and \
+                (number % 100 < 10 or number % 100 >= 20):
+            text = text[1]
+        else:
+            text = text[2]
+
+        # as_text=True выведет число в виде строки
+        if as_text is True:
+            words = self.number_to_words(number, text)
+        # as_text=True выведет число в виде числа
+        elif as_text is False:
+            words = [str(number)]
+        # as_text=None не выведет число вообще
+        else:
+            words = []
+
+        return ' '.join(words + [text])

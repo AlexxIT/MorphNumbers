@@ -1,5 +1,6 @@
 from homeassistant.config_entries import SOURCE_IMPORT
-from homeassistant.helpers.template import _ENVIRONMENT, TemplateEnvironment
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.template import TemplateEnvironment
 from jinja2.filters import do_format
 
 from .utils import MorphNumber
@@ -18,21 +19,32 @@ async def async_setup(hass, hass_config):
     return True
 
 
-async def async_setup_entry(hass, entry):
-    if _ENVIRONMENT not in hass.data:
-        hass.data[_ENVIRONMENT] = TemplateEnvironment(hass)
+# noinspection PyUnusedLocal
+async def async_setup_entry(hass: HomeAssistant, entry):
+    for env in hass.data.values():
+        if isinstance(env, TemplateEnvironment):
+            env.filters['format'] = morph_format
 
-    # use an existing filter so as not to get an initialization error
-    hass.data[_ENVIRONMENT].filters['format'] = morph_format
+    # noinspection PyTypeChecker
+    init_wrapper.orig = TemplateEnvironment.__init__
+    TemplateEnvironment.__init__ = init_wrapper
 
     return True
 
 
+# noinspection PyUnusedLocal
 async def async_unload_entry(hass, entry):
-    hass.data[_ENVIRONMENT].filters['format'] = do_format
+    for env in hass.data.values():
+        if isinstance(env, TemplateEnvironment):
+            env.filters['format'] = do_format
+
+    # noinspection PyUnresolvedReferences
+    TemplateEnvironment.__init__ = init_wrapper.orig
+
     return True
 
 
+# use an existing filter so as not to get an initialization error
 def morph_format(value, *args, **kwargs):
     if 'morph' in kwargs:
         if kwargs.get('as_ordinal'):
@@ -47,3 +59,9 @@ def morph_format(value, *args, **kwargs):
 
     else:
         return do_format(value, *args, **kwargs)
+
+
+def init_wrapper(*args, **kwargs):
+    # noinspection PyUnresolvedReferences
+    init_wrapper.orig(*args, **kwargs)
+    args[0].filters['format'] = morph_format

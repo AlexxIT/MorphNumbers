@@ -1,2 +1,4 @@
 
-custom_components/morph_numbers/__pycache__/
+.homeassistant/
+
+.idea/

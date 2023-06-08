@@ -6,7 +6,7 @@
   "issue_tracker": "https://github.com/AlexxIT/MorphNumbers/issues",
   "codeowners": ["@AlexxIT"],
   "dependencies": [],
-  "requirements": ["pymorphy2"],
-  "version": "1.3.0",
+  "requirements": ["pymorphy3"],
+  "version": "1.3.1",
   "iot_class": "calculated"
 }

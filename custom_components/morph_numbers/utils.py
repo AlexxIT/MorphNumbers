@@ -137,9 +137,12 @@ class MorphNumber:
 
         return words
 
-    def ordinal_number(self, number: int, first_word: str):
+    def ordinal_number(self, number: Union[int, float, str], first_word: str):
         if number >= 1000:
             return str(number)
+
+        # число всегда конвертируется в целое
+        number = int(float(number))
 
         words = self.number_to_words(number)
         last_word = words.pop()

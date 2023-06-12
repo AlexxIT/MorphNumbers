@@ -1,4 +1,6 @@
 import inspect
+import re
+from typing import List, Union
 
 from pymorphy2 import MorphAnalyzer
 from pymorphy2.analyzer import Parse
@@ -55,8 +57,7 @@ if not hasattr(inspect, "getargspec"):
 
 class MorphNumber:
     def __init__(self):
-        morph = MorphAnalyzer()
-        self.parse = lambda word: morph.parse(word)[0]
+        self.morph = MorphAnalyzer()
 
         # создаём словарь из чисел и порядковых числительных
         self.dict = {}
@@ -64,6 +65,16 @@ class MorphNumber:
             x, card, ord_ = i.split(",")
             self.dict[int(x)] = card
             self.dict[card] = ord_
+
+    def parse(self, word: str) -> Parse:
+        words: List[Parse] = self.morph.parse(word)
+        # search first noms
+        # https://pymorphy2.readthedocs.io/en/stable/user/grammemes.html?highlight=gent#russian-cases
+        for word in words:
+            if word.tag.case == "nomn":
+                return word
+        # return any result
+        return words[0]
 
     def number_to_words(self, number: int, text: str = None) -> list:
         """Конвертирует число в текст, опционально согласуя его с текстом после
@@ -159,14 +170,13 @@ class MorphNumber:
         number = abs(number)
         words = []
         for word in text.split(" "):
-            w: Parse = self.parse(word)
-            w: Parse = w.make_agree_with_number(number)
-            # 5|format(morph='май') => None
-            if w:
+            if w := self.parse(word).make_agree_with_number(number):
                 words.append(w.word)
         return words
 
-    def numword(self, number, text: str = None, as_text: bool = True):
+    def numword(
+        self, number: Union[int, float, str], text: str = None, as_text: bool = True
+    ):
         # число всегда конвертируется в целое
         number = int(float(number))
 

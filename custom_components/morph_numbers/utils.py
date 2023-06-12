@@ -76,7 +76,7 @@ class MorphNumber:
         # return any result
         return words[0]
 
-    def number_to_words(self, number: int, text: str = None) -> list:
+    def number_to_words(self, number: int, text: str = None) -> list[str]:
         """Конвертирует число в текст, опционально согласуя его с текстом после
         числа. Поддерживает только целые числа
         """
@@ -148,6 +148,14 @@ class MorphNumber:
 
         return words
 
+    def words_with_number(self, number: int, text: str) -> list[str]:
+        number = abs(number)
+        words = []
+        for word in text.split(" "):
+            if w := self.parse(word).make_agree_with_number(number):
+                words.append(w.word)
+        return words
+
     def ordinal_number(self, number: Union[int, float, str], first_word: str):
         if number >= 1000:
             return str(number)
@@ -165,14 +173,6 @@ class MorphNumber:
         w: Parse = w.inflect({tag.gender, tag.case})
 
         return " ".join(words + [w.word])
-
-    def words_with_number(self, number: int, text: str):
-        number = abs(number)
-        words = []
-        for word in text.split(" "):
-            if w := self.parse(word).make_agree_with_number(number):
-                words.append(w.word)
-        return words
 
     def numword(
         self, number: Union[int, float, str], text: str = None, as_text: bool = True

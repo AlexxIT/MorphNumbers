@@ -52,6 +52,9 @@ def morph_format(value, *args, **kwargs):
         if kwargs.get("as_ordinal"):
             return MORPH.ordinal_number(value, kwargs["morph"])
 
+        if kwargs.get("reverse"):
+            return MORPH.reverse(value)
+
         as_text = kwargs.get("as_text", True)
 
         if isinstance(kwargs["morph"], list):

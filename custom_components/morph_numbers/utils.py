@@ -208,3 +208,29 @@ class MorphNumber:
             words = []
 
         return " ".join(words + [text])
+
+    def reverse(self, text: str) -> int:
+        result = 0
+
+        for word in re.findall("[а-я]+", text):
+            # 1. Get normal form
+            w: Parse = self.parse(word)
+            word = w.normal_form
+
+            # 2. Check word in dict
+            numb = next((k for k, v in self.dict.items() if v == word), None)
+            if numb is None:
+                continue
+
+            # 3. Check word is ordional
+            if isinstance(numb, str):
+                numb = next((k for k, v in self.dict.items() if v == numb), None)
+
+            # 4. Check word is a thousand or a million
+            if numb >= 1000:
+                result *= numb
+                continue
+
+            result += numb
+
+        return result

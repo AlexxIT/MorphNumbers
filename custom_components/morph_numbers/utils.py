@@ -49,8 +49,8 @@ class MorphNumber:
 
         # создаём словарь из чисел и порядковых числительных
         self.dict = {}
-        for i in NUMBERS.split('\n'):
-            x, card, ord_ = i.split(',')
+        for i in NUMBERS.split("\n"):
+            x, card, ord_ = i.split(",")
             self.dict[int(x)] = card
             self.dict[card] = ord_
 
@@ -59,14 +59,14 @@ class MorphNumber:
         числа. Поддерживает только целые числа
         """
         if number < 0:
-            return ['минус'] + self.number_to_words(-number, text)
+            return ["минус"] + self.number_to_words(-number, text)
 
         if number == 0:
             return [self.dict[number]]
 
         # граммемы последней цифры
         if text:
-            word = text.rsplit(' ', 1)[-1]
+            word = text.rsplit(" ", 1)[-1]
             tag = self.parse(word).tag
         else:
             tag = None
@@ -103,7 +103,7 @@ class MorphNumber:
                     # например: одна тысяча, две тысячи
                     if k == 3 and digit <= 2:
                         w: Parse = self.parse(self.dict[digit])
-                        w: Parse = w.inflect({'femn'})
+                        w: Parse = w.inflect({"femn"})
                         words.append(w.word)
 
                     # граммемы последней цифры (только для 1 и 2)
@@ -118,7 +118,7 @@ class MorphNumber:
 
                 # например: сто тысяч, десять миллионов, один миллиард
                 if k > 2 and (hundred or ten or digit):
-                    w2: Parse = self.parse(self.dict[10 ** k])
+                    w2: Parse = self.parse(self.dict[10**k])
                     w2: Parse = w2.make_agree_with_number(digit)
                     words.append(w2.word)
 
@@ -139,12 +139,12 @@ class MorphNumber:
         tag = self.parse(first_word).tag
         w: Parse = w.inflect({tag.gender, tag.case})
 
-        return ' '.join(words + [w.word])
+        return " ".join(words + [w.word])
 
     def words_with_number(self, number: int, text: str):
         number = abs(number)
         words = []
-        for word in text.split(' '):
+        for word in text.split(" "):
             w: Parse = self.parse(word)
             w: Parse = w.make_agree_with_number(number)
             # 5|format(morph='май') => None
@@ -169,16 +169,19 @@ class MorphNumber:
         if text:
             words += self.words_with_number(number, text)
 
-        return ' '.join(words)
+        return " ".join(words)
 
-    def custom_numword(self, number, text:list, as_text: bool = True):
+    def custom_numword(self, number, text: list, as_text: bool = True):
         # число всегда конвертируется в целое
         number = int(float(number))
 
         if (number % 10 == 1) and (number % 100 != 11):
             text = text[0]
-        elif (number % 10 >= 2) and (number % 10 <= 4) and \
-                (number % 100 < 10 or number % 100 >= 20):
+        elif (
+            (number % 10 >= 2)
+            and (number % 10 <= 4)
+            and (number % 100 < 10 or number % 100 >= 20)
+        ):
             text = text[1]
         else:
             text = text[2]
@@ -193,4 +196,4 @@ class MorphNumber:
         else:
             words = []
 
-        return ' '.join(words + [text])
+        return " ".join(words + [text])

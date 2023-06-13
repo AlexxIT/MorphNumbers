@@ -50,17 +50,17 @@ async def async_unload_entry(hass, entry):
 def morph_format(value, *args, **kwargs):
     if "morph" in kwargs:
         if kwargs.get("as_ordinal"):
-            return MORPH.ordinal_number(value, kwargs["morph"])
+            return MORPH.number_to_ordinal(value, kwargs["morph"])
 
         if kwargs.get("reverse"):
-            return MORPH.reverse(value)
+            return MORPH.text_to_integer(value)
 
         as_text = kwargs.get("as_text", True)
 
         if isinstance(kwargs["morph"], list):
-            return MORPH.custom_numword(value, kwargs["morph"], as_text)
+            return MORPH.number_with_custom_text(value, kwargs["morph"], as_text)
 
-        return MORPH.numword(value, kwargs["morph"], as_text)
+        return MORPH.number_with_text(value, kwargs["morph"], as_text)
 
     else:
         return do_format(value, *args, **kwargs)

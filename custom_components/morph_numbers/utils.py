@@ -76,20 +76,20 @@ class MorphNumber:
         # return any result
         return words[0]
 
-    def number_to_words(self, number: int, text: str = None) -> list[str]:
+    def integer_to_words(self, integer: int, text: str = None) -> list[str]:
         """Конвертирует число в текст, опционально согласуя его с текстом после
         числа. Поддерживает только целые числа
         """
-        if number < 0:
-            return ["минус"] + self.number_to_words(-number, text)
+        if integer < 0:
+            return ["минус"] + self.integer_to_words(-integer, text)
 
-        if number == 0:
-            return [self.dict[number]]
+        if integer == 0:
+            return ["ноль"]
 
         # граммемы последней цифры
         if text:
-            word = text.rsplit(" ", 1)[-1]
-            tag = self.parse(word).tag
+            last_word = text.rsplit(" ", 1)[-1]
+            tag = self.parse(last_word).tag
         else:
             tag = None
 
@@ -98,8 +98,8 @@ class MorphNumber:
         words = []
 
         # номер цифры в числе
-        k = len(str(number)) - 1
-        for digit in str(number):
+        k = len(str(integer)) - 1
+        for digit in str(integer):
             digit = int(digit)
 
             # сотни
@@ -148,22 +148,89 @@ class MorphNumber:
 
         return words
 
-    def words_with_number(self, number: int, text: str) -> list[str]:
+    def float_to_words(self, integer: int, decimal: int, decsize: int) -> list[str]:
+        # правильно:   двадцать две целых и две десятых градуса
+        # неправильно: двадцать две целые и две десятые градуса
+        # неправильно: двадцать два целых и два десятых градуса
+        words = self.integer_to_words(integer, "часть")
+        words += ["целая" if first(integer) else "целых"]
+
+        words += ["и"]
+
+        words += self.integer_to_words(decimal, "часть")
+        if decsize == 1:
+            words += ["десятая" if first(integer) else "десятых"]
+        elif decsize == 2:
+            words += ["сотая" if first(integer) else "сотых"]
+        elif decsize == 3:
+            words += ["тысячная" if first(integer) else "тысячных"]
+
+        return words
+
+    def words_after_number(self, number: int, text: str) -> list[str]:
         number = abs(number)
+
         words = []
+
         for word in text.split(" "):
             if w := self.parse(word).make_agree_with_number(number):
                 words.append(w.word)
+
         return words
 
-    def ordinal_number(self, number: Union[int, float, str], first_word: str):
-        if number >= 1000:
+    def number_with_text(
+        self, value: Union[int, float, str], text: str, as_text: bool = True
+    ) -> str:
+        integer, decimal, decsize = parse_number(value)
+
+        if as_text:
+            words = (
+                self.integer_to_words(integer, text)
+                if decimal == 0
+                else self.float_to_words(integer, decimal, decsize)
+            )
+        else:
+            # support as_test=None
+            words = [str(value)] if as_text is False else []
+
+        if text:
+            words += self.words_after_number(integer if decimal == 0 else 2, text)
+
+        return " ".join(words)
+
+    def number_with_custom_text(
+        self, value: Union[int, float, str], texts: list[str], as_text: bool = True
+    ) -> str:
+        integer, decimal, decsize = parse_number(value)
+
+        if first(integer):
+            text = texts[0]
+        elif second(integer):
+            text = texts[1]
+        else:
+            text = texts[2]
+
+        if as_text:
+            words = (
+                self.integer_to_words(integer, text)
+                if decimal == 0
+                else self.float_to_words(integer, decimal, decsize)
+            )
+        else:
+            # support as_test=None
+            words = [str(value)] if as_text is False else []
+
+        words += [text if decimal == 0 else texts[1]]
+
+        return " ".join(words)
+
+    def number_to_ordinal(self, number: Union[int, float, str], first_word: str) -> str:
+        integer = int(float(number))
+
+        if integer >= 1000:
             return str(number)
 
-        # число всегда конвертируется в целое
-        number = int(float(number))
-
-        words = self.number_to_words(number)
+        words = self.integer_to_words(integer)
         last_word = words.pop()
 
         ordinal = self.dict[last_word]
@@ -174,56 +241,8 @@ class MorphNumber:
 
         return " ".join(words + [w.word])
 
-    def numword(
-        self, number: Union[int, float, str], text: str = None, as_text: bool = True
-    ):
-        # число всегда конвертируется в целое
-        number = int(float(number))
-
-        # as_text=True выведет число в виде строки
-        if as_text is True:
-            words = self.number_to_words(number, text)
-        # as_text=True выведет число в виде числа
-        elif as_text is False:
-            words = [str(number)]
-        # as_text=None не выведет число вообще
-        else:
-            words = []
-
-        if text:
-            words += self.words_with_number(number, text)
-
-        return " ".join(words)
-
-    def custom_numword(self, number, text: list, as_text: bool = True):
-        # число всегда конвертируется в целое
-        number = int(float(number))
-
-        if (number % 10 == 1) and (number % 100 != 11):
-            text = text[0]
-        elif (
-            (number % 10 >= 2)
-            and (number % 10 <= 4)
-            and (number % 100 < 10 or number % 100 >= 20)
-        ):
-            text = text[1]
-        else:
-            text = text[2]
-
-        # as_text=True выведет число в виде строки
-        if as_text is True:
-            words = self.number_to_words(number, text)
-        # as_text=True выведет число в виде числа
-        elif as_text is False:
-            words = [str(number)]
-        # as_text=None не выведет число вообще
-        else:
-            words = []
-
-        return " ".join(words + [text])
-
-    def reverse(self, text: str) -> int:
-        result = 0
+    def text_to_integer(self, text: str) -> int:
+        integer = 0
 
         for word in re.findall("[а-я]+", text):
             # 1. Get normal form
@@ -241,9 +260,34 @@ class MorphNumber:
 
             # 4. Check word is a thousand or a million
             if numb >= 1000:
-                result *= numb
+                integer *= numb
                 continue
 
-            result += numb
+            integer += numb
 
-        return result
+        return integer
+
+
+def parse_number(value: Union[int, float, str]) -> (int, int, int):
+    """Return integer and decimal parts and decimal part len."""
+    if isinstance(value, str):
+        value = float(value) if "." in value else int(value)
+
+    if isinstance(value, float):
+        # force round to 3 decimal len max
+        i, d = str(round(value, 3)).split(".")
+        return int(i), int(d), len(d)
+
+    return value, 0, 0
+
+
+def first(integer: int) -> bool:
+    return (integer % 10 == 1) and (integer % 100 != 11)
+
+
+def second(integer: int) -> bool:
+    return (
+        (integer % 10 >= 2)
+        and (integer % 10 <= 4)
+        and (integer % 100 < 10 or integer % 100 >= 20)
+    )

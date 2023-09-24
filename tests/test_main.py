@@ -8,6 +8,14 @@ def test_numword():
     assert morph.number_with_text(1, "задача") == "одна задача"
     assert morph.number_with_text(1, "дерево") == "одно дерево"
 
+    assert morph.number_with_text(2, "градус") == "два градуса"
+    assert morph.number_with_text(2, "задача") == "две задачи"
+    assert morph.number_with_text(2, "дерево") == "два дерева"
+
+    assert morph.number_with_text(1, "грамм") == "один грамм"
+    assert morph.number_with_text(2, "грамм") == "два грамма"
+    assert morph.number_with_text(5, "грамм") == "пять граммов"
+
     assert (
         morph.number_with_text(2000435, "синее облако")
         == "два миллиона четыреста тридцать пять синих облаков"
@@ -94,6 +102,11 @@ def test_integrations():
             3, ["интеграция", "интеграции", "интеграций"], as_text=False
         )
         == "3 интеграции"
+    )
+
+    assert (
+        morph.number_with_custom_text(2, ["грамм", "грамма", "граммов"])
+        == "два грамма"
     )
 
 

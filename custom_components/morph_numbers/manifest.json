@@ -1,12 +1,16 @@
 {
   "domain": "morph_numbers",
   "name": "Morph Numbers",
+  "codeowners": [
+    "@AlexxIT"
+  ],
   "config_flow": true,
-  "documentation": "https://github.com/AlexxIT/MorphNumbers",
-  "issue_tracker": "https://github.com/AlexxIT/MorphNumbers/issues",
-  "codeowners": ["@AlexxIT"],
   "dependencies": [],
-  "requirements": ["pymorphy2"],
-  "version": "1.5.0",
-  "iot_class": "calculated"
+  "documentation": "https://github.com/AlexxIT/MorphNumbers",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/AlexxIT/MorphNumbers/issues",
+  "requirements": [
+    "pymorphy2"
+  ],
+  "version": "1.5.0"
 }

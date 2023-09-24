@@ -133,7 +133,8 @@ class MorphNumber:
                     elif k == 0 and digit <= 2 and tag:
                         w: Parse = self.parse(self.dict[digit])
                         w: Parse = w.inflect({tag.gender, tag.case})
-                        words.append(w.word)
+                        # не может согласовать "2 грамма"
+                        words.append(w.word if w else self.dict[digit])
 
                     else:
                         words.append(self.dict[digit])

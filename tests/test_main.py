@@ -105,8 +105,7 @@ def test_integrations():
     )
 
     assert (
-        morph.number_with_custom_text(2, ["грамм", "грамма", "граммов"])
-        == "два грамма"
+        morph.number_with_custom_text(2, ["грамм", "грамма", "граммов"]) == "два грамма"
     )
 
 
@@ -151,3 +150,22 @@ def test_float():
         morph.number_with_text(22.2, "яркость")
         == "двадцать две целых и две десятых яркости"
     )
+
+
+def test_case():
+    # Кто? Что?
+    assert morph.number_with_text(1, "муниципальный") == "один муниципальный"
+    # Кого? Чего?
+    assert morph.number_with_text(1, "муниципального") == "одного муниципального"
+    # Кому? Чему?
+    assert morph.number_with_text(1, "муниципальному") == "одному муниципальному"
+    # Кого? Что?
+    assert morph.number_with_text(1, "муниципального") == "одного муниципального"
+    # Кем? Чем?
+    assert morph.number_with_text(1, "муниципальным") == "одним муниципальным"
+    # О ком? О чём?
+    assert morph.number_with_text(1, "муниципальном") == "одном муниципальном"
+
+    assert morph.number_with_text(2, "муниципальном") == "два муниципальных"
+    assert morph.number_with_text(5, "муниципальном") == "пять муниципальных"
+    assert morph.number_with_text(21, "муниципальном") == "двадцать одном муниципальном"

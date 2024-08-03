@@ -174,7 +174,11 @@ class MorphNumber:
         words = []
 
         for word in text.split(" "):
-            if w := self.parse(word).make_agree_with_number(number):
+            w: Parse = self.parse(word)
+            grammemes = w.tag.numeral_agreement_grammemes(number)
+            if grammemes == {"sing", "accs"}:
+                grammemes = {"sing", w.tag.case}
+            if w := w.inflect(grammemes):
                 words.append(w.word)
 
         return words

@@ -2,8 +2,8 @@ import inspect
 import re
 from typing import List, Union
 
-from pymorphy2 import MorphAnalyzer
-from pymorphy2.analyzer import Parse
+from pymorphy3 import MorphAnalyzer
+from pymorphy3.analyzer import Parse
 
 NUMBERS = """0,ноль,нулевой
 1,один,первый

@@ -53,6 +53,11 @@ def test_ordional():
     assert morph.number_to_ordinal(8.0, "первого") == "восьмого"
 
 
+def test_eleventh():
+    # https://github.com/AlexxIT/MorphNumbers/issues/31
+    assert morph.number_to_ordinal(11, "первого") == "одиннадцатого"
+
+
 def test_vatt():
     # https://github.com/AlexxIT/MorphNumbers/issues/12
     assert morph.number_with_text(1, "ватт") == "один ватт"
@@ -134,12 +139,12 @@ def test_float():
 
     assert (
         morph.number_with_text(11.11, "градус")
-        == "одинадцать целых и одинадцать сотых градуса"
+        == "одиннадцать целых и одиннадцать сотых градуса"
     )
 
     assert (
         morph.number_with_text(111.111, "градус")
-        == "сто одинадцать целых и сто одинадцать тысячных градуса"
+        == "сто одиннадцать целых и сто одиннадцать тысячных градуса"
     )
 
     assert (

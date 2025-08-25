@@ -1,4 +1,3 @@
-import inspect
 import re
 from typing import List, Union
 
@@ -44,15 +43,6 @@ NUMBERS = """0,ноль,нулевой
 900,девятьсот,девятисотый
 1000,тысяча,тысячный
 1000000,миллион,миллионный"""
-
-# fix Python 3.11 support
-if not hasattr(inspect, "getargspec"):
-
-    def getargspec(*args):
-        spec = inspect.getfullargspec(*args)
-        return spec.args, spec.varargs, spec.varkw, spec.defaults
-
-    inspect.getargspec = getargspec
 
 
 class MorphNumber:
